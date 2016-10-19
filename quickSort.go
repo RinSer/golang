@@ -83,14 +83,14 @@ func main() {
     count_median += int64(r-p)
     empty := func(array []int, p int, r int) {}
     first := array[p]
-    middle := array[(r-p+1)/2]
+    middle := array[p+(r-p)/2]
     last := array[r]
     triple := []int{first, middle, last}
     quickSort(triple, 0, 2, empty)
     pivot := triple[1]
     switch pivot {
       case middle:
-        swap(array, p, (r-p+1)/2)
+        swap(array, p, p+(r-p)/2)
       case last:
         swap(array, p, r)
     }
