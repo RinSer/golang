@@ -13,6 +13,8 @@ import (
     "fmt"
     "strings"
     "strconv"
+    //"math"
+    "math/rand"
 )
 
 
@@ -47,12 +49,52 @@ func atoi(word string) int {
 /**
  * Function to compute the Minimum Cut in a graph.
  * Returns a graph reduced to two vertices.
- *
+ */
 func MinCut(graph Graph) Graph {
-    // Uniformly choose an edge
-    
-    return 0
-}*/
+    // Join the vertices removing randomly an edge until two are left
+    for len(graph.vertices) > 2 {
+        // Uniformly choose an edge
+        edge_index := rand.Intn(len(graph.edges))
+        // Remove the edge
+        edge := graph.edges[edge_index]
+        graph.edges = append(graph.edges[:edge_index], graph.edges[edge_index+1:]...)
+        // Remove the vertex with smaller index
+        for i := 0; i < len(graph.vertices); i++ {
+            if graph.vertices[i] == edge[1] {
+                graph.vertices = append(graph.vertices[:i], graph.vertices[i+1:]...)
+            }
+        }
+        // Add all the edges corresponding to the removed vertex to the joined one
+        for i := 0; i < len(graph.edges); i++ {
+            if graph.edges[i][0] == edge[1] {
+                graph.edges[i][0] = edge[0]
+            }
+            if graph.edges[i][1] == edge[1] {
+                if graph.edges[i][0] > edge[0] {
+                    graph.edges[i][1] = graph.edges[i][0]
+                    graph.edges[i][0] = edge[0]
+                } else {
+                    graph.edges[i][1] = edge[0]
+                }
+            }
+            // Remove the loops
+            if graph.edges[i][0] == graph.edges[i][1] {
+                graph.edges = append(graph.edges[:i], graph.edges[i+1:]...)
+            }
+        }
+    }
+    return graph
+}
+
+
+/**
+ * Function to repeat MinCut algorithm with different seeds.
+ * Returns the minimum cut size infimum.
+ *
+func IterateMinCut(times int, graph Graph) int {
+    infimum := math.Inf(1)
+    for i := 0; i < times; i++ {
+*/
 
 
 func main() {
@@ -89,4 +131,9 @@ func main() {
         line, err = buffer.ReadString('\n')
     }
     fmt.Println(len(graph.vertices), len(graph.edges))
+    // Testing
+    test_graph := Graph{vertices: []int{1, 2, 3, 4}, 
+    edges: [][2]int{[2]int{1, 2}, [2]int{1, 3}, [2]int{2, 3}, [2]int{2, 4}, [2]int{3, 4}}}
+    rand.Seed(5)
+    fmt.Println(MinCut(test_graph))
 }
