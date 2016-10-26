@@ -13,8 +13,8 @@ import (
     "fmt"
     "strings"
     "strconv"
-    //"math"
     "math/rand"
+    "math"
 )
 
 
@@ -51,50 +51,71 @@ func atoi(word string) int {
  * Returns a graph reduced to two vertices.
  */
 func MinCut(graph Graph) Graph {
+    // Create the edges copy
+    edges := make([][2]int, len(graph.edges))
+    copy(edges, graph.edges)
+    // Map to store the removed vertices
+    removed_vertices := make(map[int]bool)
     // Join the vertices removing randomly an edge until two are left
-    for len(graph.vertices) > 2 {
+    for len(graph.vertices)-len(removed_vertices) > 2 {
         // Uniformly choose an edge
-        edge_index := rand.Intn(len(graph.edges))
+        edge_index := rand.Intn(len(edges))
         // Remove the edge
-        edge := graph.edges[edge_index]
-        graph.edges = append(graph.edges[:edge_index], graph.edges[edge_index+1:]...)
-        // Remove the vertex with smaller index
-        for i := 0; i < len(graph.vertices); i++ {
-            if graph.vertices[i] == edge[1] {
-                graph.vertices = append(graph.vertices[:i], graph.vertices[i+1:]...)
-            }
-        }
+        edge := edges[edge_index]
+        edges = append(edges[:edge_index], edges[edge_index+1:]...)
+        // Add the removed vertex to the corresponding array
+        removed_vertices[edge[1]] = true
         // Add all the edges corresponding to the removed vertex to the joined one
-        for i := 0; i < len(graph.edges); i++ {
-            if graph.edges[i][0] == edge[1] {
-                graph.edges[i][0] = edge[0]
+        for i := 0; i < len(edges); i++ {
+            if edges[i][0] == edge[1] {
+                edges[i][0] = edge[0]
             }
-            if graph.edges[i][1] == edge[1] {
-                if graph.edges[i][0] > edge[0] {
-                    graph.edges[i][1] = graph.edges[i][0]
-                    graph.edges[i][0] = edge[0]
+            if edges[i][1] == edge[1] {
+                if edges[i][0] > edge[0] {
+                    edges[i][1] = edges[i][0]
+                    edges[i][0] = edge[0]
                 } else {
-                    graph.edges[i][1] = edge[0]
+                    edges[i][1] = edge[0]
                 }
             }
             // Remove the loops
-            if graph.edges[i][0] == graph.edges[i][1] {
-                graph.edges = append(graph.edges[:i], graph.edges[i+1:]...)
+            if edges[i][0] == edges[i][1] {
+                edges = append(edges[:i], edges[i+1:]...)
+                i--
             }
         }
     }
-    return graph
+    // Create the graph with minimum cut
+    cut_graph := NewGraph()
+    cut_graph.edges = edges
+    for vdx := range graph.vertices {
+        if !removed_vertices[graph.vertices[vdx]] {
+            cut_graph.vertices = append(cut_graph.vertices, graph.vertices[vdx])
+        }
+    }
+
+    return cut_graph
 }
 
 
 /**
  * Function to repeat MinCut algorithm with different seeds.
  * Returns the minimum cut size infimum.
- *
+ */
 func IterateMinCut(times int, graph Graph) int {
-    infimum := math.Inf(1)
+    infimum := len(graph.edges)
     for i := 0; i < times; i++ {
-*/
+        rand.Seed(int64(i))
+        cut_graph := MinCut(graph)
+        //fmt.Println(cut_graph)
+        current_cut := len(cut_graph.edges)
+        if current_cut < infimum {
+            infimum = current_cut
+        }
+    }
+
+    return infimum
+}
 
 
 func main() {
@@ -130,10 +151,17 @@ func main() {
         }
         line, err = buffer.ReadString('\n')
     }
-    fmt.Println(len(graph.vertices), len(graph.edges))
-    // Testing
+    //fmt.Println(len(graph.vertices), len(graph.edges))
+    //fmt.Println(MinCut(graph))
+    // Find the Minimum Cut
+    n_squared := int(math.Pow(float64(len(graph.vertices)), 2))
+    fmt.Println(IterateMinCut(n_squared, graph))
+
+    /* Testing
     test_graph := Graph{vertices: []int{1, 2, 3, 4}, 
     edges: [][2]int{[2]int{1, 2}, [2]int{1, 3}, [2]int{2, 3}, [2]int{2, 4}, [2]int{3, 4}}}
-    rand.Seed(5)
-    fmt.Println(MinCut(test_graph))
+    //rand.Seed(5)
+    //fmt.Println(MinCut(test_graph))
+    n_cubed := int(math.Pow(float64(len(test_graph.vertices)), 3))
+    fmt.Println(IterateMinCut(n_cubed, test_graph))*/
 }
