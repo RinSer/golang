@@ -15,6 +15,7 @@ import (
     "strconv"
     "math/rand"
     "math"
+    "time"
 )
 
 
@@ -155,7 +156,9 @@ func main() {
     //fmt.Println(MinCut(graph))
     // Find the Minimum Cut
     n_squared := int(math.Pow(float64(len(graph.vertices)), 2))
+    fmt.Println(time.Now())
     fmt.Println(IterateMinCut(n_squared, graph))
+    fmt.Println(time.Now())
 
     /* Testing
     test_graph := Graph{vertices: []int{1, 2, 3, 4}, 
