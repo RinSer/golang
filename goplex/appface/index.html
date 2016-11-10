@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<mate author="RinSer">
+<title>Mandelbrot set {{.Xmin}} {{.Xmax}} {{.Ymin}} {{.Ymax}}</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+</head>
+
+<body style="margin: auto">
+	<h1 style="text-align: center">Mandelbrot set. Real from {{.Xmax}} to {{.Xmin}} and Imaginary from {{.Ymax}} to {{.Ymin}}.</h1>
+	<div style="text-align: center">
+		<img id="set" src="set/mandelbrot.png"/>
+	</div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('img').on('click', function(event) {
+            var x = event.pageX - this.offsetLeft;
+            var y = event.pageY - this.offsetTop;
+            var url_param = "_"+String(x-3)+"_"+String(x+3)+"_"+String(y-3)+"_"+String(y+3)
+            window.location.href = url_param;
+            alert("X Coordinate: " + x + " Y Coordinate: " + y);
+        });
+    });
+</script>
+</body>
+
+</html>
