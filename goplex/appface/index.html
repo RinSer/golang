@@ -7,7 +7,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 </head>
 
-<body style="margin: auto">
+<body style="margin: auto; background: black;">
 	<h1 style="text-align: center">Mandelbrot set. Real from {{.Xmax}} to {{.Xmin}} and Imaginary from {{.Ymax}} to {{.Ymin}}.</h1>
 	<div style="text-align: center">
 		<img id="set" src="set/mandelbrot.png"/>
@@ -19,8 +19,7 @@
             var x = event.pageX - this.offsetLeft;
             var y = event.pageY - this.offsetTop;
             var url_param = "_"+String(x-3)+"_"+String(x+3)+"_"+String(y-3)+"_"+String(y+3)
-            window.location.href = url_param;
-            alert("X Coordinate: " + x + " Y Coordinate: " + y);
+            window.location.href = window.location.href+url_param;
         });
     });
 </script>

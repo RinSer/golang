@@ -23,10 +23,10 @@ func Show(dx, dy int, data [][]uint8) {
 		for x := 0; x < dx; x++ {
 			v := data[y][x]
 			i := y*m.Stride + x*4
-			m.Pix[i] = v
-			m.Pix[i+1] = v
-			m.Pix[i+2] = 255
-			m.Pix[i+3] = 255
+			m.Pix[i] = 255
+			m.Pix[i+1] = 255-v
+			m.Pix[i+2] = 255-v
+			m.Pix[i+3] = 255-v
 		}
 	}
     // Create img file
@@ -132,6 +132,9 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
     mandelbrot_set := Mandelbrot(xresolution, yresolution, xmin, xmax, ymin, ymax)
 	Show(xresolution, yresolution, mandelbrot_set)
     set := Set{Xmin:xmin, Xmax:xmax, Ymin:ymin, Ymax:ymax}
+    if len(params) < 2 || len(params) > 8 {
+        http.Redirect(w, r, "/"+page_url, http.StatusFound)
+    }
     html.Execute(w, set)
 }
 
