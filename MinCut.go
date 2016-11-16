@@ -152,6 +152,7 @@ func main() {
         }
         line, err = buffer.ReadString('\n')
     }
+    file_pointer.Close()
     //fmt.Println(len(graph.vertices), len(graph.edges))
     //fmt.Println(MinCut(graph))
     // Find the Minimum Cut
