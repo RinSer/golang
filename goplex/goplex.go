@@ -96,6 +96,9 @@ type Set struct {
 
 func viewHandler(w http.ResponseWriter, r *http.Request) {
 	url := r.URL.Path
+    r.ParseForm()
+    form := r.Form
+    fmt.Println(form)
     params := strings.Split(url, "_")
     html, err := template.ParseFiles("appface/index.html")
     if err != nil {

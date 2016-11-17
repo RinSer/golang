@@ -9,12 +9,48 @@
 
 <body style="margin: auto; background: black;">
 	<h1 style="text-align: center">Mandelbrot set. Real from {{.Xmax}} to {{.Xmin}} and Imaginary from {{.Ymax}} to {{.Ymin}}.</h1>
+    <section>
+        <form action="/Xmin_{{.Xmin}}_Xmax_{{.Xmax}}_Ymin_{{.Ymin}}_Ymax_{{.Ymax}}" method="POST">
+          Xmin:
+          <input type="text" name="Xmin" value="{{.Xmin}}"><br>
+          Xmax:
+          <input type="text" name="Xmax" value="{{.Xmax}}"><br><br>
+          <br>
+          Ymin:
+          <input type="text" name="Ymin" value="{{.Ymin}}"><br>
+          Ymax:
+          <input type="text" name="Ymax" value="{{.Ymax}}"><br><br>
+          <input id="submit" type="submit" value="Submit">
+          <input type="reset">
+        </form> 
+    </section>
+    <form id="auto_submit">
+        <input type="hidden" name="screen" value="">
+    </form>
 	<div style="text-align: center">
 		<img id="set" src="set/mandelbrot.png"/>
 	</div>
 
 <script type="text/javascript">
+
     $(document).ready(function() {
+        var screen = $("input[name$='screen']").val();
+        console.log(screen);
+        if (screen.length < 1) {
+            var width = $(window).width();
+            var height = $(window).height();
+            var wh = width+","+height;
+            console.log(wh);
+            $("input[name$='screen']").val(wh);
+            $("#submit").submit(function(e) {
+                console.log('submit');
+                e.preventDefault;
+            });
+        }
+        /*$("#auto_submit").change(function() {
+                console.log('submit');
+                $("#submit").click();
+        });*/
         $('img').on('click', function(event) {
             var x = event.pageX - this.offsetLeft;
             var y = event.pageY - this.offsetTop;
