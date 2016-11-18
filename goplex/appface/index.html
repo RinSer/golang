@@ -8,8 +8,8 @@
 </head>
 
 <body style="margin: auto; background: black;">
-	<h1 style="text-align: center">Mandelbrot set. Real from {{.Xmax}} to {{.Xmin}} and Imaginary from {{.Ymax}} to {{.Ymin}}.</h1>
-    <section>
+	<h1 style="text-align: center; color: red; position: fixed; bottom: 0; right: 0;">Mandelbrot set. Real from {{.Xmax}} to {{.Xmin}} and Imaginary from {{.Ymax}} to {{.Ymin}}.</h1>
+    <section style="position: fixed; top: 0; left: 0;">
         <form action="/Xmin_{{.Xmin}}_Xmax_{{.Xmax}}_Ymin_{{.Ymin}}_Ymax_{{.Ymax}}" method="POST">
           Xmin:
           <input type="text" name="Xmin" value="{{.Xmin}}"><br>
@@ -24,17 +24,24 @@
           <input type="reset">
         </form> 
     </section>
-    <form id="auto_submit">
-        <input type="hidden" name="screen" value="">
-    </form>
-	<div style="text-align: center">
+	<div style="text-align: center;">
 		<img id="set" src="set/mandelbrot.png"/>
 	</div>
 
 <script type="text/javascript">
 
     $(document).ready(function() {
-        var screen = $("input[name$='screen']").val();
+        var width = $(window).width();
+        var height = $(window).height();
+        var current_url = window.location.href;
+        current_url = current_url.split('_');
+        console.log(current_url);
+        if (current_url[1] != 'r') {
+            var wh = '_r_'+width+'_x_'+height;
+            window.location.href = window.location.href+wh;
+            console.log(wh);
+        }
+        /*var screen = $("input[name$='screen']").val();
         console.log(screen);
         if (screen.length < 1) {
             var width = $(window).width();
@@ -42,12 +49,15 @@
             var wh = width+","+height;
             console.log(wh);
             $("input[name$='screen']").val(wh);
+            $( "#submit" ).on( "submit", function( event ) {
+              event.stopPropagation();
+            });
             $("#submit").submit(function(e) {
                 console.log('submit');
                 e.preventDefault;
             });
         }
-        /*$("#auto_submit").change(function() {
+        $("#auto_submit").change(function() {
                 console.log('submit');
                 $("#submit").click();
         });*/
