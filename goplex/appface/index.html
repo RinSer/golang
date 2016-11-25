@@ -67,6 +67,12 @@
             var url_param = "_"+String(x-80)+"_"+String(x+80)+"_"+String(y-80)+"_"+String(y+80)
             window.location.href = window.location.href+url_param;
         });
+        $('img').on('mousemove', function(event) {
+            $(this).css('cursor', 'zoom-in');
+            var x = event.pageX - this.offsetLeft;
+            var y = event.pageY - this.offsetTop;
+            
+        });
         // Reload the image
         //$('#set').attr('src', "set/mandelbrot.png" + new Date());
     });
