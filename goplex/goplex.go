@@ -14,29 +14,19 @@ import (
     "html/template"
     "strings"
     "strconv"
-    //"encoding/hex"
 )
 
-func Show(dx, dy int, data [][]uint64) {
-		
-    m := image.NewNRGBA(image.Rect(0, 0, dx, dy))
+func Show(dx, dy int, data [][]uint8) {
+	
+	m := image.NewRGBA(image.Rect(0, 0, dx, dy))
 	for y := 0; y < dy; y++ {
 		for x := 0; x < dx; x++ {
 			v := data[y][x]
-            fmt.Println("Coloring")
-            color := fmt.Sprintf("%x", v)
-            for len(color) < 6 {
-                color = "0"+color
-            }
-            fmt.Println(color)
-            red, _ := strconv.ParseInt(color[:2], 16, 8)
-            green, _ := strconv.ParseInt(color[2:4], 16, 8)
-            blue, _ := strconv.ParseInt(color[4:], 16, 8)
 			i := y*m.Stride + x*4
-			m.Pix[i] = 255
-			m.Pix[i+1] = uint8(red)
-			m.Pix[i+2] = uint8(green)
-			m.Pix[i+3] = uint8(blue)
+			m.Pix[i] = v
+			m.Pix[i+1] = 0
+			m.Pix[i+2] = 0
+			m.Pix[i+3] = 255-v
 		}
 	}
     // Create img file
@@ -69,11 +59,11 @@ func ShowImage(m image.Image) {
 }
 
 
-func Mandelbrot(dx, dy int, xs, xe, ys, ye float64) [][]uint64 {
+func Mandelbrot(dx, dy int, xs, xe, ys, ye float64) [][]uint8 {
     // Initialize the complex plane
-    cplane := make([][]uint64, dy)
+    cplane := make([][]uint8, dy)
     for y := 0; y < dy; y++ {
-        cplane[y] = make([]uint64, dx)
+        cplane[y] = make([]uint8, dx)
         for x := 0; x < dx; x++ {
             re := xs+float64(x)/float64(dx)*(xe-xs)
             im := ys+float64(y)/float64(dy)*(ye-ys)
@@ -81,16 +71,16 @@ func Mandelbrot(dx, dy int, xs, xe, ys, ye float64) [][]uint64 {
             z := complex(0, 0)
             f := z*z + c
             iteration := 0
-            for iteration < 16000000 {
+            for iteration < 255 {
                 if cmplx.Abs(f) > 2 {
-                    cplane[y][x] = uint64(iteration)
+                    cplane[y][x] = uint8(iteration)
                     break
                 }
                 f = f*f + c
                 iteration++
             }
-            if iteration == 16000000 {
-                cplane[y][x] = uint64(0)
+            if iteration == 255 {
+                cplane[y][x] = uint8(0)
             }
         }
     }
@@ -119,7 +109,7 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
     // Screen Resolution
     if len(params) > 2 {
         
-    //xresolution, _ := strconv.ParseInt(params[4], 10, 16)
+    //xresolution, _ := strconv.ParseInt(params[2], 10, 16)
     //yresolution, _ := strconv.ParseInt(params[4], 10, 16)
     xresolution := 800
     yresolution := 800
