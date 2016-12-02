@@ -27,6 +27,7 @@
 	<div style="text-align: center;">
 		<img id="set" src="set/mandelbrot.png"/>
 	</div>
+    <div id="cursorRect" style="width: 160px; height: 160px; position: fixed; border: 1px solid red; display: none; pointer-events: none"></div>
 
 <script type="text/javascript">
 
@@ -68,10 +69,16 @@
             window.location.href = window.location.href+url_param;
         });
         $('img').on('mousemove', function(event) {
-            $(this).css('cursor', 'zoom-in');
-            var x = event.pageX - this.offsetLeft;
-            var y = event.pageY - this.offsetTop;
-            
+            $(this).css('cursor', 'none');
+            var x = event.pageX - 80;
+            var y = event.pageY - 80;
+            $('#cursorRect').css('top', y).css('left', x);
+        });
+        $('img').on('mouseenter', function(event) {
+            $('#cursorRect').show();
+        });
+        $('img').on('mouseleave', function(event) {
+            $('#cursorRect').hide();
         });
         // Reload the image
         //$('#set').attr('src', "set/mandelbrot.png" + new Date());
