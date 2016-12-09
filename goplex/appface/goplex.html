@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<mate author="RinSer">
+<title>Mandelbrot set {{.Xmin}} {{.Xmax}} {{.Ymin}} {{.Ymax}}</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="app/goplex.js"></script>
+ <link rel="stylesheet" href="app/goplex.css"> 
+</head>
+
+<body>
+
+	<h1>Mandelbrot set. Real from {{.Xmax}} to {{.Xmin}} and Imaginary from {{.Ymax}} to {{.Ymin}}.</h1>
+    <section>
+        <form action="/Xmin_{{.Xmin}}_Xmax_{{.Xmax}}_Ymin_{{.Ymin}}_Ymax_{{.Ymax}}" method="POST">
+          Xmin:
+          <input type="text" name="Xmin" value="{{.Xmin}}"><br>
+          Xmax:
+          <input type="text" name="Xmax" value="{{.Xmax}}"><br><br>
+          <br>
+          Ymin:
+          <input type="text" name="Ymin" value="{{.Ymin}}"><br>
+          Ymax:
+          <input type="text" name="Ymax" value="{{.Ymax}}"><br><br>
+          <input id="submit" type="submit" value="Submit">
+          <input type="reset">
+        </form> 
+    </section>
+	<div>
+		<img id="set" src="set/mandelbrot.png"/>
+	</div>
+    <div id="cursorRect"></div>
+
+</body>
+
+</html>

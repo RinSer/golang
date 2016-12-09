@@ -1,0 +1,31 @@
+body {
+    margin: auto;
+    background: black;
+}
+
+h1 {
+    text-align: center;
+    color: red;
+    position: fixed;
+    bottom: 0;
+    right: 0;
+}
+
+section {
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+div {
+    text-align: center;
+}
+
+#cursorRect {
+    width: 160px;
+    height: 160px;
+    position: fixed;
+    border: 1px solid red;
+    display: none;
+    pointer-events: none;
+}

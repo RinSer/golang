@@ -102,7 +102,7 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
     //form := r.Form
     //fmt.Println(form)
     params := strings.Split(url, "_")
-    html, err := template.ParseFiles("appface/index.html")
+    html, err := template.ParseFiles("appface/goplex.html")
     if err != nil {
         panic(err)
     }
@@ -129,14 +129,15 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
     }
     
     if len(params) > 13 {
+        fmt.Println(params)
         new_xmin, _ := strconv.ParseFloat(params[13], 64)
         new_xmax, _ := strconv.ParseFloat(params[14], 64)
         new_ymin, _ := strconv.ParseFloat(params[15], 64)
         new_ymax, _ := strconv.ParseFloat(params[16], 64)
-        xmin = xmin+float64(new_xmin)/float64(xresolution)*(xmax-xmin)
-        xmax = xmin+float64(new_xmax)/float64(xresolution)*(xmax-xmin)
-        ymin = ymin+float64(new_ymin)/float64(yresolution)*(ymax-ymin)
-        ymax = ymin+float64(new_ymax)/float64(yresolution)*(ymax-ymin)
+        xmin = new_xmin // xmin+float64(new_xmin)/float64(xresolution)*(xmax-xmin)
+        xmax = new_xmax // xmin+float64(new_xmax)/float64(xresolution)*(xmax-xmin)
+        ymin = new_ymin // ymin+float64(new_ymin)/float64(yresolution)*(ymax-ymin)
+        ymax = new_ymax // ymin+float64(new_ymax)/float64(yresolution)*(ymax-ymin)
     }
     page_url := fmt.Sprintf("_r_%d_x_%d_Xmin_%f_Xmax_%f_Ymin_%f_Ymax_%f", xresolution, yresolution, xmin, xmax, ymin, ymax)
     fmt.Println(page_url)
@@ -156,6 +157,7 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	http.HandleFunc("/", viewHandler)
     http.Handle("/set/", http.StripPrefix("/set/", http.FileServer(http.Dir("img"))))
+    http.Handle("/app/", http.StripPrefix("/app/", http.FileServer(http.Dir("appface"))))
 	http.ListenAndServe(":8080", nil)
 }
 
