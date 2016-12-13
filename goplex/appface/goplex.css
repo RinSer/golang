@@ -17,6 +17,19 @@ h1 {
     font-size: 1.5em;
 }
 
+h2 {
+    text-align: center;
+    font-size: 1.5em;
+    border: 2px solid rgba(255, 0, 0, 0.5);
+    cursor: pointer;
+}
+
+h2:hover {
+    border: none;
+    background-color: rgba(255, 0, 0, 0.5);
+    color: black;
+}
+
 fieldset {
     display: block;
     margin-left: 2px;
@@ -32,7 +45,7 @@ input {
     background: none;
     border: none;
     color: rgba(255, 0, 0, 0.5);
-    font-size: 1.25em;
+    font-size: 1.5em;
     cursor: pointer;
 }
 
@@ -59,9 +72,20 @@ div {
     width: 160px;
     height: 160px;
     position: fixed;
-    border: 2px solid rgba(255, 0, 0, 0.5);
+    border: 2px solid white;
     display: none;
     pointer-events: none;
+}
+
+#colorForm {
+    display: none;
+}
+
+select {
+    width: 100%;
+    background-color: rgba(255, 0, 0, 0.5);
+    color: black;
+    border: none;
 }
 
 .col-lg-3 {

@@ -10,11 +10,20 @@ $(document).ready(function() {
             window.location.href = window.location.href+wh;
             //console.log(wh);
         }
-        /*else {
-            var url = window.location.href.split('_r_');
-            var pic_url = "set/_r_"+url[1]+".png";
-            $('img').attr('src', pic_url);
-        }*/
+        else {
+            var background_color = current_url[13];
+            var color = current_url[14];
+            switch (background_color) {
+                case 'b':
+                    $('body').css('background', 'black');
+                    $('#cursorRect').css('border-color', 'white');
+                    break;
+                case 'w':
+                    $('body').css('background', 'white');
+                    $('#cursorRect').css('border-color', 'black');
+                    break;
+            }
+        }
         // Event listeners
         $('img').on('click', function(event) {
             // Coordinates convertion
@@ -91,6 +100,20 @@ $(document).ready(function() {
             current_url[8] = $("input[name$='Xmax']").val();
             current_url[10] = $("input[name$='Ymin']").val();
             current_url[12] = $("input[name$='Ymax']").val();
+            var new_url = "";
+            for (var i = 0; i < current_url.length; i++) {
+                if (i > 0) new_url += '_';
+                new_url += current_url[i];
+            }
+            window.location.href = new_url;
+        });
+        // Color form
+        $('h2').on('click', function() {
+            $('#colorForm').toggle();
+        });
+        $('#colorForm').submit(function(event) {
+            event.preventDefault();
+            current_url[13] = $('#background').val();
             var new_url = "";
             for (var i = 0; i < current_url.length; i++) {
                 if (i > 0) new_url += '_';

@@ -14,7 +14,7 @@
 
     <section class="col-lg-3 side">
         <h1>Mandelbrot set</h1>
-        <form action="/Xmin_{{.Xmin}}_Xmax_{{.Xmax}}_Ymin_{{.Ymin}}_Ymax_{{.Ymax}}" method="POST">
+        <form method="POST">
           <fieldset>
               <legend>Real values</legend>
               From:<br>
@@ -41,7 +41,14 @@
         <div id="cursorRect"></div>
     </section>
     <section class="col-lg-3 side">
-        <h1>Mandelbrot set. Real from {{.Xmax}} to {{.Xmin}} and Imaginary from {{.Ymax}} to {{.Ymin}}.</h1>
+        <h2>Color scheme</h2>
+        <form id="colorForm">
+            <select id="background" name="background" form="colorForm">
+              <option value="b">Black</option>
+              <option value="w">White</option>
+            </select>
+            <input type="submit" value="Change">
+        </form>
     </section>
 
 </body>
