@@ -5,13 +5,16 @@ $(document).ready(function() {
         var height = $(window).height();
         var current_url = window.location.href;
         current_url = current_url.split('_');
-        if (current_url[1] != 'r') {
+        if (current_url.length < 2) {
             var wh = '_r_'+width+'_x_'+height;
             window.location.href = window.location.href+wh;
-            console.log(wh);
+            //console.log(wh);
         }
-        // Hide the cursor rect
-        $('#cursorRect').hide();
+        /*else {
+            var url = window.location.href.split('_r_');
+            var pic_url = "set/_r_"+url[1]+".png";
+            $('img').attr('src', pic_url);
+        }*/
         // Event listeners
         $('img').on('click', function(event) {
             // Coordinates convertion
@@ -32,6 +35,8 @@ $(document).ready(function() {
             y_mx = y_min+((new_y+80)/yresolution)*(y_max-y_min);
             var url_param = "_"+String(x_mn.toFixed(6))+"_"+String(x_mx.toFixed(6))+"_"+String(y_mn.toFixed(6))+"_"+String(y_mx.toFixed(6));
             window.location.href = window.location.href+url_param;
+            // Hide the cursor rect
+            //$('#cursorRect').hide();
         });
         $('img').on('mousemove', function(event) {
             $(this).css('cursor', 'none');
@@ -60,6 +65,9 @@ $(document).ready(function() {
             $("input[name$='Ymax']").val(y_mx.toFixed(6));
         });
         $('img').on('mouseenter', function(event) {
+            var x = event.pageX - 80;
+            var y = event.pageY - 80;
+            $('#cursorRect').css('top', y).css('left', x);
             $('#cursorRect').show();
         });
         $('img').on('mouseleave', function(event) {
@@ -76,6 +84,18 @@ $(document).ready(function() {
             $("input[name$='Xmax']").val(x_max.toFixed(6));
             $("input[name$='Ymax']").val(y_max.toFixed(6));
         });
-        // Reload the image
-        //$('#set').attr('src', "set/mandelbrot.png" + new Date());
+        // Form submit
+        $('form').submit(function(event) {
+            event.preventDefault();
+            current_url[6] = $("input[name$='Xmin']").val();
+            current_url[8] = $("input[name$='Xmax']").val();
+            current_url[10] = $("input[name$='Ymin']").val();
+            current_url[12] = $("input[name$='Ymax']").val();
+            var new_url = "";
+            for (var i = 0; i < current_url.length; i++) {
+                if (i > 0) new_url += '_';
+                new_url += current_url[i];
+            }
+            window.location.href = new_url;
+        });
 });

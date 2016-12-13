@@ -12,26 +12,37 @@
 
 <body>
 
-	<h1>Mandelbrot set. Real from {{.Xmax}} to {{.Xmin}} and Imaginary from {{.Ymax}} to {{.Ymin}}.</h1>
-    <section>
+    <section class="col-lg-3 side">
+        <h1>Mandelbrot set</h1>
         <form action="/Xmin_{{.Xmin}}_Xmax_{{.Xmax}}_Ymin_{{.Ymin}}_Ymax_{{.Ymax}}" method="POST">
-          Xmin:
-          <input type="text" name="Xmin" value="{{.Xmin}}"><br>
-          Xmax:
-          <input type="text" name="Xmax" value="{{.Xmax}}"><br><br>
+          <fieldset>
+              <legend>Real values</legend>
+              From:<br>
+              <input type="number" step="0.000001" name="Xmin" value="{{.Xmin}}"><br>
+              To:<br>
+              <input type="number" step="0.000001" name="Xmax" value="{{.Xmax}}"><br><br>
+          </fieldset>
           <br>
-          Ymin:
-          <input type="text" name="Ymin" value="{{.Ymin}}"><br>
-          Ymax:
-          <input type="text" name="Ymax" value="{{.Ymax}}"><br><br>
+          <fieldset>
+              <legend>Imaginary values</legend>
+              From:<br>
+              <input type="number" step="0.000001" name="Ymin" value="{{.Ymin}}"><br>
+              To:<br>
+              <input type="number" step="0.000001" name="Ymax" value="{{.Ymax}}"><br><br>
+          </fieldset>
           <input id="submit" type="submit" value="Submit">
           <input type="reset">
         </form> 
     </section>
-	<div>
-		<img id="set" src="set/mandelbrot.png"/>
-	</div>
-    <div id="cursorRect"></div>
+    <section class="col-lg-3 middle">
+        <div>
+		    <img id="set" src="{{.PicPath}}"/>
+	    </div>
+        <div id="cursorRect"></div>
+    </section>
+    <section class="col-lg-3 side">
+        <h1>Mandelbrot set. Real from {{.Xmax}} to {{.Xmin}} and Imaginary from {{.Ymax}} to {{.Ymin}}.</h1>
+    </section>
 
 </body>
 

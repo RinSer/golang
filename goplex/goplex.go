@@ -14,9 +14,23 @@ import (
     "html/template"
     "strings"
     "strconv"
+    //"math/rand"
+    //"time"
 )
 
-func Show(dx, dy int, data [][]uint8) {
+/*
+func RandStringRunes(n int) string {
+    rand.Seed(time.Now().UnixNano())
+    var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+    b := make([]rune, n)
+    for i := range b {
+        b[i] = letterRunes[rand.Intn(len(letterRunes))]
+    }
+    return string(b)
+}
+*/
+
+func Show(dx, dy int, data [][]uint8, pic_name string) {
 	
 	m := image.NewRGBA(image.Rect(0, 0, dx, dy))
 	for y := 0; y < dy; y++ {
@@ -31,7 +45,8 @@ func Show(dx, dy int, data [][]uint8) {
 	}
     // Create img file
     fmt.Println("Creating img file")
-    img_file, err :=  os.Create("img/mandelbrot.png")
+    filename := fmt.Sprintf("img/%s.png", pic_name)
+    img_file, err :=  os.Create(filename)
     if err != nil {
         panic(err)
     }
@@ -93,6 +108,7 @@ type Set struct {
     Xmax float64
     Ymin float64
     Ymax float64
+    PicPath string
 }
 
 
@@ -101,53 +117,60 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
     //r.ParseForm()
     //form := r.Form
     //fmt.Println(form)
+    // Session number
+    //session := RandStringRunes(10)
     params := strings.Split(url, "_")
     html, err := template.ParseFiles("appface/goplex.html")
     if err != nil {
         panic(err)
     }
     // Screen Resolution
-    if len(params) > 2 {
+    if len(params) > 3 {
         
-    //xresolution, _ := strconv.ParseInt(params[2], 10, 16)
-    //yresolution, _ := strconv.ParseInt(params[4], 10, 16)
-    xresolution := 800
-    yresolution := 800
-    // Params
-    var xmin, xmax, ymin, ymax float64
-    fmt.Println(params)
-    if len(params) < 10 {
-        xmin = -2
-        xmax = 0.75
-        ymin = -1.5
-        ymax = 1.5
-    } else {
-        xmin, _ = strconv.ParseFloat(params[6], 64)
-        xmax, _ = strconv.ParseFloat(params[8], 64)
-        ymin, _ = strconv.ParseFloat(params[10], 64)
-        ymax, _ = strconv.ParseFloat(params[12], 64)
-    }
-    
-    if len(params) > 13 {
-        fmt.Println(params)
-        new_xmin, _ := strconv.ParseFloat(params[13], 64)
-        new_xmax, _ := strconv.ParseFloat(params[14], 64)
-        new_ymin, _ := strconv.ParseFloat(params[15], 64)
-        new_ymax, _ := strconv.ParseFloat(params[16], 64)
-        xmin = new_xmin // xmin+float64(new_xmin)/float64(xresolution)*(xmax-xmin)
-        xmax = new_xmax // xmin+float64(new_xmax)/float64(xresolution)*(xmax-xmin)
-        ymin = new_ymin // ymin+float64(new_ymin)/float64(yresolution)*(ymax-ymin)
-        ymax = new_ymax // ymin+float64(new_ymax)/float64(yresolution)*(ymax-ymin)
-    }
-    page_url := fmt.Sprintf("_r_%d_x_%d_Xmin_%f_Xmax_%f_Ymin_%f_Ymax_%f", xresolution, yresolution, xmin, xmax, ymin, ymax)
-    fmt.Println(page_url)
-    mandelbrot_set := Mandelbrot(int(xresolution), int(yresolution), xmin, xmax, ymin, ymax)
-	Show(int(xresolution), int(yresolution), mandelbrot_set)
-    set := Set{Xmin:xmin, Xmax:xmax, Ymin:ymin, Ymax:ymax}
-    if len(params) < 7 || len(params) > 13 {
-        http.Redirect(w, r, "/"+page_url, http.StatusFound)
-    }
-    html.Execute(w, set)
+        //xresolution, _ := strconv.ParseInt(params[2], 10, 16)
+        //yresolution, _ := strconv.ParseInt(params[4], 10, 16)
+        xresolution := 800
+        yresolution := 800
+        // Params
+        var xmin, xmax, ymin, ymax float64
+        //fmt.Println(url)
+        if len(params) < 10 {
+            xmin = -2
+            xmax = 0.75
+            ymin = -1.5
+            ymax = 1.5
+        } else {
+            xmin, _ = strconv.ParseFloat(params[6], 64)
+            xmax, _ = strconv.ParseFloat(params[8], 64)
+            ymin, _ = strconv.ParseFloat(params[10], 64)
+            ymax, _ = strconv.ParseFloat(params[12], 64)
+        }
+        
+        if len(params) > 13 {
+            //fmt.Println(params)
+            new_xmin, _ := strconv.ParseFloat(params[13], 64)
+            new_xmax, _ := strconv.ParseFloat(params[14], 64)
+            new_ymin, _ := strconv.ParseFloat(params[15], 64)
+            new_ymax, _ := strconv.ParseFloat(params[16], 64)
+            xmin = new_xmin // xmin+float64(new_xmin)/float64(xresolution)*(xmax-xmin)
+            xmax = new_xmax // xmin+float64(new_xmax)/float64(xresolution)*(xmax-xmin)
+            ymin = new_ymin // ymin+float64(new_ymin)/float64(yresolution)*(ymax-ymin)
+            ymax = new_ymax // ymin+float64(new_ymax)/float64(yresolution)*(ymax-ymin)
+        }
+        page_url := fmt.Sprintf("_r_%d_x_%d_Xmin_%f_Xmax_%f_Ymin_%f_Ymax_%f", xresolution, yresolution, xmin, xmax, ymin, ymax)
+        fmt.Println(page_url)
+        pic_path := "set/"+page_url+".png"
+        // Create the pic if it does not already exist
+        if _, err := os.Stat("img/"+page_url+".png"); os.IsNotExist(err) {
+          mandelbrot_set := Mandelbrot(int(xresolution), int(yresolution), xmin, xmax, ymin, ymax)
+	      Show(int(xresolution), int(yresolution), mandelbrot_set, page_url)
+        }
+        set := Set{Xmin:xmin, Xmax:xmax, Ymin:ymin, Ymax:ymax, PicPath:pic_path}
+        if len(params) < 7 || len(params) > 13 {
+            fmt.Println(params)
+            http.Redirect(w, r, "/"+page_url, http.StatusFound)
+        }
+        html.Execute(w, set)
     } else {
         html.Execute(w, nil)
     }
