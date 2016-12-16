@@ -114,9 +114,6 @@ type Set struct {
 
 func viewHandler(w http.ResponseWriter, r *http.Request) {
 	url := r.URL.Path
-    //r.ParseForm()
-    //form := r.Form
-    //fmt.Println(form)
     // Session number
     //session := RandStringRunes(10)
     params := strings.Split(url, "_")
@@ -127,10 +124,19 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
     // Screen Resolution
     if len(params) > 3 {
         
-        //xresolution, _ := strconv.ParseInt(params[2], 10, 16)
-        //yresolution, _ := strconv.ParseInt(params[4], 10, 16)
-        xresolution := 800
-        yresolution := 800
+        var xresolution, yresolution int64        
+        xscreen, _ := strconv.ParseInt(params[2], 10, 16)
+        yscreen, _ := strconv.ParseInt(params[4], 10, 16)
+        xresolution = 800
+        yresolution = 800
+        if xscreen < xresolution {
+            xresolution = xscreen
+            yresolution = xscreen
+        }
+        if yscreen < yresolution {
+            xresolution = yscreen
+            yresolution = yscreen
+        }
         // Params
         var xmin, xmax, ymin, ymax float64
         // Colors
@@ -151,17 +157,7 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
             bw = params[13]
             rgb = params[14]
         }
-        if len(params) > 15 {
-            //fmt.Println(params)
-            new_xmin, _ := strconv.ParseFloat(params[15], 64)
-            new_xmax, _ := strconv.ParseFloat(params[16], 64)
-            new_ymin, _ := strconv.ParseFloat(params[17], 64)
-            new_ymax, _ := strconv.ParseFloat(params[18], 64)
-            xmin = new_xmin // xmin+float64(new_xmin)/float64(xresolution)*(xmax-xmin)
-            xmax = new_xmax // xmin+float64(new_xmax)/float64(xresolution)*(xmax-xmin)
-            ymin = new_ymin // ymin+float64(new_ymin)/float64(yresolution)*(ymax-ymin)
-            ymax = new_ymax // ymin+float64(new_ymax)/float64(yresolution)*(ymax-ymin)
-        }
+        // Create the new url
         page_url := fmt.Sprintf("_r_%d_x_%d_Xmin_%f_Xmax_%f_Ymin_%f_Ymax_%f_%s_%s", xresolution, yresolution, xmin, xmax, ymin, ymax, bw, rgb)
         fmt.Println(page_url)
         pic_path := "set/"+page_url+".png"

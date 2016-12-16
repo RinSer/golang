@@ -6,7 +6,6 @@ body {
     margin: 0;
     padding: 0;
     background: black;
-    color: rgba(255, 0, 0, 0.5);
     width: 100%;
     font-size: 16px;
     font-family: Helvetica, sans-serif;
@@ -20,14 +19,12 @@ h1 {
 h2 {
     text-align: center;
     font-size: 1.5em;
-    border: 2px solid rgba(255, 0, 0, 0.5);
+    border: 2px solid rgba(0, 0, 0, 0);
     cursor: pointer;
 }
 
 h2:hover {
     border: none;
-    background-color: rgba(255, 0, 0, 0.5);
-    color: black;
 }
 
 fieldset {
@@ -44,14 +41,11 @@ fieldset {
 input {
     background: none;
     border: none;
-    color: rgba(255, 0, 0, 0.5);
     font-size: 1.5em;
     cursor: pointer;
 }
 
 input:focus {
-    background: rgba(255, 0, 0, 0.35);
-    color: black;
     outline: none;
 }
 
@@ -83,8 +77,6 @@ div {
 
 select {
     width: 100%;
-    background-color: rgba(255, 0, 0, 0.5);
-    color: black;
     border: none;
 }
 
