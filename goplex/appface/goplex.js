@@ -39,7 +39,7 @@ $(document).ready(function() {
             switch (background_color) {
                 case 'b':
                     $('body').css('background', 'black');
-                    $('#cursorRect').css('border-color', 'rgba(255, 255, 255, 0.5)');
+                    $('#cursorRect').css('border-color', 'rgba(255, 255, 255, 0.66)');
                     jqHover('h2', 'color', 'black');
                     $('select').css('color', 'black');
                     bc = 'black';
@@ -47,7 +47,7 @@ $(document).ready(function() {
                     break;
                 case 'w':
                     $('body').css('background', 'white');
-                    $('#cursorRect').css('border-color', 'rgba(0, 0, 0, 0.5)');
+                    $('#cursorRect').css('border-color', 'rgba(0, 0, 0, 0.66)');
                     jqHover('h2','color', 'white');
                     $('select').css('color', 'white');
                     bc = 'white';
@@ -70,7 +70,23 @@ $(document).ready(function() {
                 blue = 255;
                 $('#blue').prop('checked', true);
             }
-            var current_color = 'rgba('+String(red)+', '+String(green)+', '+String(blue)+', 0.5)';
+            // Visibility check
+            if (background_color == 'b') {
+                if (red == 0 && green == 0 && blue == 0) {
+                    red = 255;
+                    green = 255;
+                    blue = 255;
+                }
+            }
+            if (background_color == 'w') {
+                if (red == 255 && green == 255 && blue == 255) {
+                    red = 0;
+                    green = 0;
+                    blue = 0;
+                }
+            }
+            // Set the css colors        
+            var current_color = 'rgba('+String(red)+', '+String(green)+', '+String(blue)+', 0.66)';
             $('body').css('color', current_color);
             $('h2').css('border-color', current_color);
             jqHover('h2', 'background-color', current_color);
@@ -154,6 +170,14 @@ $(document).ready(function() {
             current_url[10] = $("input[name$='Ymin']").val();
             current_url[12] = $("input[name$='Ymax']").val();
             window.location.href = makeString(current_url, '_');
+        });
+        // Form reset
+        $('#reset').click(function(event) {
+            event.preventDefault();
+            $("input[name$='Xmin']").val(-2);
+            $("input[name$='Ymin']").val(-1.5);
+            $("input[name$='Xmax']").val(0.75);
+            $("input[name$='Ymax']").val(1.5);
         });
         // Color form
         $('h2').on('click', function() {

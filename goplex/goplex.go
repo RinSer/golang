@@ -2,8 +2,6 @@ package main
 
 
 import (
-	"bytes"
-	"encoding/base64"
 	"fmt"
 	"image"
 	"image/png"
@@ -14,37 +12,73 @@ import (
     "html/template"
     "strings"
     "strconv"
-    //"math/rand"
-    //"time"
 )
 
-/*
-func RandStringRunes(n int) string {
-    rand.Seed(time.Now().UnixNano())
-    var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-    b := make([]rune, n)
-    for i := range b {
-        b[i] = letterRunes[rand.Intn(len(letterRunes))]
-    }
-    return string(b)
-}
-*/
 
-func Show(dx, dy int, data [][]uint8, background, color, pic_name string) {
-	
+func MakePic(dx, dy int, data [][]uint8, background, color, pic_name string) {
+    // Color settings
+    var red, green, blue uint8
+    if strings.IndexRune(color, 'r') == -1 {
+        red = 0
+    } else {
+        red = 255
+    }
+    if strings.IndexRune(color, 'g') == -1 {
+        green = 0
+    } else {
+        green = 255
+    }
+    if strings.IndexRune(color, 'b') == -1 {
+        blue = 0
+    } else {
+        blue = 255
+    }
+	// Image creation
 	m := image.NewRGBA(image.Rect(0, 0, dx, dy))
 	for y := 0; y < dy; y++ {
 		for x := 0; x < dx; x++ {
 			v := data[y][x]
-			i := y*m.Stride + x*4
-			m.Pix[i] = 255-v
-			m.Pix[i+1] = 0
-			m.Pix[i+2] = 0
-			m.Pix[i+3] = 255-v
+            i := y*m.Stride + x*4
+            if background == "b" {
+                if red == 255 {
+			        m.Pix[i] = v
+                } else {
+                    m.Pix[i] = 255-v
+                }
+                if green == 255 {
+                    m.Pix[i+1] = v
+                } else {
+			        m.Pix[i+1] = 255-v
+                }
+                if blue == 255 {
+                    m.Pix[i+2] = v
+                } else {
+			        m.Pix[i+2] = 255-v
+                }
+			    m.Pix[i+3] = v
+            } else {
+                v = 255-v
+                if red == 255 {
+			        m.Pix[i] = 255
+                } else {
+                    m.Pix[i] = v
+                }
+                if green == 255 {
+                    m.Pix[i+1] = 255
+                } else {
+			        m.Pix[i+1] = v
+                }
+                if blue == 255 {
+                    m.Pix[i+2] = 255
+                } else {
+			        m.Pix[i+2] = v
+                }
+			    m.Pix[i+3] = 255-v
+            }
 		}
 	}
     // Create img file
-    fmt.Println("Creating img file")
+    //fmt.Println("Creating img file")
     filename := fmt.Sprintf("img/%s.png", pic_name)
     img_file, err :=  os.Create(filename)
     if err != nil {
@@ -57,20 +91,7 @@ func Show(dx, dy int, data [][]uint8, background, color, pic_name string) {
     }
     img_drawer.Flush()
     img_file.Close()
-    fmt.Println("img file created")
-    //ShowImage(m)
-}
-
-
-func ShowImage(m image.Image) {
-    
-	var buf bytes.Buffer
-	err := png.Encode(&buf, m)
-	if err != nil {
-		panic(err)
-	}
-	enc := base64.StdEncoding.EncodeToString(buf.Bytes())
-	fmt.Println("IMAGE:" + enc)
+    //fmt.Println("img file created")
 }
 
 
@@ -88,14 +109,14 @@ func Mandelbrot(dx, dy int, xs, xe, ys, ye float64) [][]uint8 {
             iteration := 0
             for iteration < 255 {
                 if cmplx.Abs(f) > 2 {
-                    cplane[y][x] = uint8(255-iteration)
+                    cplane[y][x] = uint8(iteration)
                     break
                 }
                 f = f*f + c
                 iteration++
             }
             if iteration == 255 {
-                cplane[y][x] = uint8(0)
+                cplane[y][x] = uint8(255)
             }
         }
     }
@@ -114,8 +135,6 @@ type Set struct {
 
 func viewHandler(w http.ResponseWriter, r *http.Request) {
 	url := r.URL.Path
-    // Session number
-    //session := RandStringRunes(10)
     params := strings.Split(url, "_")
     html, err := template.ParseFiles("appface/goplex.html")
     if err != nil {
@@ -123,7 +142,6 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
     }
     // Screen Resolution
     if len(params) > 3 {
-        
         var xresolution, yresolution int64        
         xscreen, _ := strconv.ParseInt(params[2], 10, 16)
         yscreen, _ := strconv.ParseInt(params[4], 10, 16)
@@ -159,16 +177,15 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
         }
         // Create the new url
         page_url := fmt.Sprintf("_r_%d_x_%d_Xmin_%f_Xmax_%f_Ymin_%f_Ymax_%f_%s_%s", xresolution, yresolution, xmin, xmax, ymin, ymax, bw, rgb)
-        fmt.Println(page_url)
+        //fmt.Println(page_url)
         pic_path := "set/"+page_url+".png"
         // Create the pic if it does not already exist
         if _, err := os.Stat("img/"+page_url+".png"); os.IsNotExist(err) {
           mandelbrot_set := Mandelbrot(int(xresolution), int(yresolution), xmin, xmax, ymin, ymax)
-	      Show(int(xresolution), int(yresolution), mandelbrot_set, bw, rgb, page_url)
+	      MakePic(int(xresolution), int(yresolution), mandelbrot_set, bw, rgb, page_url)
         }
         set := Set{Xmin:xmin, Xmax:xmax, Ymin:ymin, Ymax:ymax, PicPath:pic_path}
         if len(params) < 9 || len(params) > 15 {
-            fmt.Println(params)
             http.Redirect(w, r, "/"+page_url, http.StatusFound)
         }
         html.Execute(w, set)
