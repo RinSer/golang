@@ -41,6 +41,7 @@ $(document).ready(function() {
                     $('body').css('background', 'black');
                     $('#cursorRect').css('border-color', 'rgba(255, 255, 255, 0.66)');
                     jqHover('h2', 'color', 'black');
+                    jqHover('a', 'color', 'black');
                     $('select').css('color', 'black');
                     bc = 'black';
                     $('#black').prop('selected', true);
@@ -48,7 +49,8 @@ $(document).ready(function() {
                 case 'w':
                     $('body').css('background', 'white');
                     $('#cursorRect').css('border-color', 'rgba(0, 0, 0, 0.66)');
-                    jqHover('h2','color', 'white');
+                    jqHover('h2', 'color', 'white');
+                    jqHover('a', 'color', 'white');
                     $('select').css('color', 'white');
                     bc = 'white';
                     $('#white').prop('selected', true);
@@ -88,6 +90,7 @@ $(document).ready(function() {
             // Set the css colors        
             var current_color = 'rgba('+String(red)+', '+String(green)+', '+String(blue)+', 0.66)';
             $('body').css('color', current_color);
+            $('a').css('color', current_color);
             $('h2').css('border-color', current_color);
             jqHover('h2', 'background-color', current_color);
             $('input').css('color', current_color);
@@ -180,7 +183,7 @@ $(document).ready(function() {
             $("input[name$='Ymax']").val(1.5);
         });
         // Color form
-        $('h2').on('click', function() {
+        $('#colorScheme').on('click', function() {
             $('#colorForm').toggle();
         });
         $('#colorForm').submit(function(event) {

@@ -78,7 +78,7 @@ func MakePic(dx, dy int, data [][]uint8, background, color, pic_name string) {
 		}
 	}
     // Create img file
-    fmt.Println("Creating img file")
+    //fmt.Println("Creating img file")
     filename := fmt.Sprintf("img/%s.png", pic_name)
     img_file, err :=  os.Create(filename)
     if err != nil {
@@ -91,7 +91,7 @@ func MakePic(dx, dy int, data [][]uint8, background, color, pic_name string) {
     }
     img_drawer.Flush()
     img_file.Close()
-    fmt.Println("img file created")
+    //fmt.Println("img file created")
 }
 
 
@@ -162,11 +162,14 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
             yresolution = yscreen
         }
         // Params
-        var xmin, xmax, ymin, ymax float64
+        var xmin, xmax, ymin, ymax, rec, imc float64
+        var c complex128
         // Colors
         var bw, rgb string
         //fmt.Println(url)
-        if len(params) < 10 {
+        if len(params) < 19 {
+            rec = 0
+            imc = 1
             xmin = -2
             xmax = 2
             ymin = -2
@@ -174,24 +177,27 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
             bw = "b"
             rgb = "r"
         } else {
-            xmin, _ = strconv.ParseFloat(params[6], 64)
-            xmax, _ = strconv.ParseFloat(params[8], 64)
-            ymin, _ = strconv.ParseFloat(params[10], 64)
-            ymax, _ = strconv.ParseFloat(params[12], 64)
-            bw = params[13]
-            rgb = params[14]
+            rec, _ = strconv.ParseFloat(params[6], 64)
+            imc, _ = strconv.ParseFloat(params[8], 64)
+            xmin, _ = strconv.ParseFloat(params[10], 64)
+            xmax, _ = strconv.ParseFloat(params[12], 64)
+            ymin, _ = strconv.ParseFloat(params[14], 64)
+            ymax, _ = strconv.ParseFloat(params[16], 64)
+            bw = params[17]
+            rgb = params[18]
         }
+        c = complex(rec, imc)
         // Create the new url
-        page_url := fmt.Sprintf("_r_%d_x_%d_Xmin_%f_Xmax_%f_Ymin_%f_Ymax_%f_%s_%s", xresolution, yresolution, xmin, xmax, ymin, ymax, bw, rgb)
-        fmt.Println(page_url)
+        page_url := fmt.Sprintf("_r_%d_x_%d_ReC_%f_ImC_%f_Xmin_%f_Xmax_%f_Ymin_%f_Ymax_%f_%s_%s", xresolution, yresolution, rec, imc, xmin, xmax, ymin, ymax, bw, rgb)
+        //fmt.Println(page_url)
         pic_path := "set/"+page_url+".png"
         // Create the pic if it does not already exist
         if _, err := os.Stat("img/"+page_url+".png"); os.IsNotExist(err) {
-          julia_set := JuliaSet(int(xresolution), int(yresolution), xmin, xmax, ymin, ymax, complex(0, 1))
+          julia_set := JuliaSet(int(xresolution), int(yresolution), xmin, xmax, ymin, ymax, c)
 	      MakePic(int(xresolution), int(yresolution), julia_set, bw, rgb, page_url)
         }
-        set := Set{Xmin:xmin, Xmax:xmax, Ymin:ymin, Ymax:ymax, PicPath:pic_path, Cvalue:complex(0, 1), ReC:float64(0), ImC:float64(1)}
-        if len(params) < 9 || len(params) > 15 {
+        set := Set{Xmin:xmin, Xmax:xmax, Ymin:ymin, Ymax:ymax, PicPath:pic_path, Cvalue:c, ReC:rec, ImC:imc}
+        if len(params) != 19 {
             http.Redirect(w, r, "/"+page_url, http.StatusFound)
         }
         html.Execute(w, set)

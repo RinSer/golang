@@ -27,6 +27,11 @@ h2:hover {
     border: none;
 }
 
+a {
+    text-decoration: none;
+    outline: 0;
+}
+
 fieldset {
     display: block;
     margin-left: 2px;
