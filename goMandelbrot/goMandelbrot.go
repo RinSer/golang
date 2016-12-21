@@ -6,8 +6,8 @@ import (
 	"image"
 	"image/png"
     "math/cmplx"
-    "bufio"
-    "os"
+    "bytes"
+    "encoding/base64"
     "net/http"
     "html/template"
     "strings"
@@ -15,7 +15,7 @@ import (
 )
 
 
-func MakePic(dx, dy int, data [][]uint8, background, color, pic_name string) {
+func MakePic(dx, dy int, data [][]uint8, background, color string) string {
     // Color settings
     var red, green, blue uint8
     if strings.IndexRune(color, 'r') == -1 {
@@ -77,21 +77,14 @@ func MakePic(dx, dy int, data [][]uint8, background, color, pic_name string) {
             }
 		}
 	}
-    // Create img file
-    //fmt.Println("Creating img file")
-    filename := fmt.Sprintf("img/%s.png", pic_name)
-    img_file, err :=  os.Create(filename)
-    if err != nil {
-        panic(err)
-    }
-    img_drawer := bufio.NewWriter(img_file)
-    er := png.Encode(img_drawer, m)
-    if er != nil {
-        panic(err)
-    }
-    img_drawer.Flush()
-    img_file.Close()
-    //fmt.Println("img file created")
+    // Encode the image base64
+    var buf bytes.Buffer
+	err := png.Encode(&buf, m)
+	if err != nil {
+		panic(err)
+	}
+	
+    return base64.StdEncoding.EncodeToString(buf.Bytes())
 }
 
 
@@ -129,7 +122,7 @@ type Set struct {
     Xmax float64
     Ymin float64
     Ymax float64
-    PicPath string
+    Image string
 }
 
 
@@ -160,7 +153,7 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
         // Colors
         var bw, rgb string
         //fmt.Println(url)
-        if len(params) < 10 {
+        if len(params) < 15 {
             xmin = -2
             xmax = 0.75
             ymin = -1.5
@@ -177,15 +170,10 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
         }
         // Create the new url
         page_url := fmt.Sprintf("_r_%d_x_%d_Xmin_%f_Xmax_%f_Ymin_%f_Ymax_%f_%s_%s", xresolution, yresolution, xmin, xmax, ymin, ymax, bw, rgb)
-        //fmt.Println(page_url)
-        pic_path := "set/"+page_url+".png"
-        // Create the pic if it does not already exist
-        if _, err := os.Stat("img/"+page_url+".png"); os.IsNotExist(err) {
-          mandelbrot_set := Mandelbrot(int(xresolution), int(yresolution), xmin, xmax, ymin, ymax)
-	      MakePic(int(xresolution), int(yresolution), mandelbrot_set, bw, rgb, page_url)
-        }
-        set := Set{Xmin:xmin, Xmax:xmax, Ymin:ymin, Ymax:ymax, PicPath:pic_path}
-        if len(params) < 9 || len(params) > 15 {
+        mandelbrot_set := Mandelbrot(int(xresolution), int(yresolution), xmin, xmax, ymin, ymax)
+	    image := MakePic(int(xresolution), int(yresolution), mandelbrot_set, bw, rgb)
+        set := Set{Xmin:xmin, Xmax:xmax, Ymin:ymin, Ymax:ymax, Image:image}
+        if len(params) != 15 {
             http.Redirect(w, r, "/"+page_url, http.StatusFound)
         }
         html.Execute(w, set)
@@ -197,7 +185,6 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	http.HandleFunc("/", viewHandler)
-    http.Handle("/set/", http.StripPrefix("/set/", http.FileServer(http.Dir("img"))))
     http.Handle("/app/", http.StripPrefix("/app/", http.FileServer(http.Dir("appface"))))
 	http.ListenAndServe(":8080", nil)
 }

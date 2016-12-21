@@ -44,7 +44,7 @@
     </section>
     <section class="col-lg-3 middle">
         <div>
-		    <img id="set" src="{{.PicPath}}"/>
+		    <img id="set" src="data:image/png;base64,{{.Image}}"/>
 	    </div>
         <div id="cursorRect"></div>
     </section>
@@ -52,8 +52,8 @@
         <h2 id="colorScheme">Color scheme</h2>
         <form id="colorForm">
             <select id="background" name="background" form="colorForm">
-              <option id="black" value="b">Black</option>
-              <option id="white" value="w">White</option>
+              <option id="black" value="b">Black background</option>
+              <option id="white" value="w">White background</option>
             </select>
             <input type="checkbox" id="red" name="red" value="r">Red<br>
             <input type="checkbox" id="green" name="green" value="g">Green<br>
