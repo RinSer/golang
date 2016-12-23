@@ -6,12 +6,13 @@ import (
 	"image"
 	"image/png"
     "math/cmplx"
-    "bytes"
     "encoding/base64"
+    "bytes"
     "net/http"
     "html/template"
     "strings"
     "strconv"
+    "math"
 )
 
 
@@ -41,39 +42,38 @@ func MakePic(dx, dy int, data [][]uint8, background, color string) string {
             i := y*m.Stride + x*4
             if background == "b" {
                 if red == 255 {
-			        m.Pix[i] = v
-                } else {
-                    m.Pix[i] = 255-v
-                }
-                if green == 255 {
-                    m.Pix[i+1] = v
-                } else {
-			        m.Pix[i+1] = 255-v
-                }
-                if blue == 255 {
-                    m.Pix[i+2] = v
-                } else {
-			        m.Pix[i+2] = 255-v
-                }
-			    m.Pix[i+3] = v
-            } else {
-                v = 255-v
-                if red == 255 {
-			        m.Pix[i] = 255
+			        m.Pix[i] = 255-v
                 } else {
                     m.Pix[i] = v
                 }
                 if green == 255 {
-                    m.Pix[i+1] = 255
+                    m.Pix[i+1] = 255-v
                 } else {
 			        m.Pix[i+1] = v
                 }
                 if blue == 255 {
-                    m.Pix[i+2] = 255
+                    m.Pix[i+2] = 255-v
                 } else {
 			        m.Pix[i+2] = v
                 }
 			    m.Pix[i+3] = 255-v
+            } else {
+                if red == 255 {
+			        m.Pix[i] = 255-v
+                } else {
+                    m.Pix[i] = v
+                }
+                if green == 255 {
+                    m.Pix[i+1] = 255-v
+                } else {
+			        m.Pix[i+1] = v
+                }
+                if blue == 255 {
+                    m.Pix[i+2] = 255-v
+                } else {
+			        m.Pix[i+2] = v
+                }
+			    m.Pix[i+3] = 255
             }
 		}
 	}
@@ -88,33 +88,36 @@ func MakePic(dx, dy int, data [][]uint8, background, color string) string {
 }
 
 
-func Mandelbrot(dx, dy int, xs, xe, ys, ye float64) [][]uint8 {
+func JuliaSet(dx, dy int, a, b, c, d float64, C complex128) [][]uint8 {
+    // Compute the R value
+    r := (1+math.Sqrt(1+4*cmplx.Abs(C)))/2
     // Initialize the complex plane
     cplane := make([][]uint8, dy)
     for y := 0; y < dy; y++ {
         cplane[y] = make([]uint8, dx)
         for x := 0; x < dx; x++ {
-            re := xs+float64(x)/float64(dx)*(xe-xs)
-            im := ys+float64(y)/float64(dy)*(ye-ys)
-            c := complex(re, im)
-            z := complex(0, 0)
-            f := z*z + c
+            var z complex128
+            re := a+float64(x)/float64(dx)*(b-a)
+            im := c+float64(y)/float64(dy)*(d-c)
+            z = complex(re, im)
+            f := z*z + C
             iteration := 0
             for iteration < 255 {
-                if cmplx.Abs(f) > 2 {
-                    cplane[y][x] = uint8(iteration)
+                if cmplx.Abs(f) > r {
+                    cplane[y][x] = uint8(255-iteration*7)
                     break
                 }
-                f = f*f + c
+                f = f*f + C
                 iteration++
             }
             if iteration == 255 {
-                cplane[y][x] = uint8(255)
+                cplane[y][x] = uint8(0)
             }
         }
     }
     return cplane
 }
+
 
 
 type Set struct {
@@ -123,6 +126,9 @@ type Set struct {
     Ymin float64
     Ymax float64
     Image string
+    Cvalue complex128
+    ReC float64
+    ImC float64
 }
 
 
@@ -149,31 +155,38 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
             yresolution = yscreen
         }
         // Params
-        var xmin, xmax, ymin, ymax float64
+        var xmin, xmax, ymin, ymax, rec, imc float64
+        var c complex128
         // Colors
         var bw, rgb string
         //fmt.Println(url)
-        if len(params) < 15 {
+        if len(params) < 19 {
+            rec = 0
+            imc = 1
             xmin = -2
-            xmax = 0.75
-            ymin = -1.5
-            ymax = 1.5
+            xmax = 2
+            ymin = -2
+            ymax = 2
             bw = "b"
             rgb = "r"
         } else {
-            xmin, _ = strconv.ParseFloat(params[6], 64)
-            xmax, _ = strconv.ParseFloat(params[8], 64)
-            ymin, _ = strconv.ParseFloat(params[10], 64)
-            ymax, _ = strconv.ParseFloat(params[12], 64)
-            bw = params[13]
-            rgb = params[14]
+            rec, _ = strconv.ParseFloat(params[6], 64)
+            imc, _ = strconv.ParseFloat(params[8], 64)
+            xmin, _ = strconv.ParseFloat(params[10], 64)
+            xmax, _ = strconv.ParseFloat(params[12], 64)
+            ymin, _ = strconv.ParseFloat(params[14], 64)
+            ymax, _ = strconv.ParseFloat(params[16], 64)
+            bw = params[17]
+            rgb = params[18]
         }
+        c = complex(rec, imc)
         // Create the new url
-        page_url := fmt.Sprintf("_r_%d_x_%d_Xmin_%f_Xmax_%f_Ymin_%f_Ymax_%f_%s_%s", xresolution, yresolution, xmin, xmax, ymin, ymax, bw, rgb)
-        mandelbrot_set := Mandelbrot(int(xresolution), int(yresolution), xmin, xmax, ymin, ymax)
-	    image := MakePic(int(xresolution), int(yresolution), mandelbrot_set, bw, rgb)
-        set := Set{Xmin:xmin, Xmax:xmax, Ymin:ymin, Ymax:ymax, Image:image}
-        if len(params) != 15 {
+        page_url := fmt.Sprintf("_r_%d_x_%d_ReC_%f_ImC_%f_Xmin_%f_Xmax_%f_Ymin_%f_Ymax_%f_%s_%s", xresolution, yresolution, rec, imc, xmin, xmax, ymin, ymax, bw, rgb)
+        julia_set := JuliaSet(int(xresolution), int(yresolution), xmin, xmax, ymin, ymax, c)
+	    image := MakePic(int(xresolution), int(yresolution), julia_set, bw, rgb)
+        set := Set{Xmin:xmin, Xmax:xmax, Ymin:ymin, Ymax:ymax, Image:image, Cvalue:c, ReC:rec, ImC:imc}
+        // Check the url correctness
+        if len(params) != 19 {
             http.Redirect(w, r, "/"+page_url, http.StatusFound)
         }
         html.Execute(w, set)
@@ -186,7 +199,7 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	http.HandleFunc("/", viewHandler)
     http.Handle("/app/", http.StripPrefix("/app/", http.FileServer(http.Dir("appface"))))
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":5050", nil)
 }
 
 
